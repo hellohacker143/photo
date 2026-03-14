@@ -1,3 +1,5 @@
+
+import cv2
 import streamlit as st
 from utils import extract_numbers
 
