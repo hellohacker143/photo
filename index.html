@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#070b18">
+<title>FaceMesh AI Studio</title>
+<style>
+:root{color-scheme:dark;--bg:#070b18;--panel:#10182b;--line:#233552;--cyan:#36d9ff;--pink:#db56ff;--muted:#90a5c5}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 75% 10%,#18244b 0,transparent 38%),var(--bg);color:#eef6ff;font:15px/1.5 Inter,system-ui,Arial,sans-serif;min-height:100vh}
+header{max-width:1180px;margin:auto;padding:26px 22px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:800;letter-spacing:.08em}.brand span{color:var(--cyan)}.pill{border:1px solid #2d4966;border-radius:99px;padding:7px 12px;color:#a8dfff;font-size:12px}
+main{max-width:1180px;margin:22px auto;padding:0 22px 50px;display:grid;grid-template-columns:1fr 350px;gap:22px}
+.preview,.controls{background:linear-gradient(145deg,#121e35ee,#0c1426ee);border:1px solid var(--line);border-radius:22px;box-shadow:0 25px 80px #0006}
+.preview{padding:16px;min-height:650px;display:flex;flex-direction:column}.topline{display:flex;justify-content:space-between;align-items:center;padding:3px 4px 14px;color:var(--muted);font-size:13px}
+.stage{position:relative;flex:1;min-height:500px;overflow:hidden;border-radius:16px;background:radial-gradient(ellipse at 50% 38%,#1b3153,#080e1c 70%);display:grid;place-items:center}
+.stage:before{content:"";position:absolute;inset:0;background:linear-gradient(transparent 49.8%,#48dfff12 50%,transparent 50.3%),linear-gradient(90deg,transparent 49.8%,#48dfff12 50%,transparent 50.3%);background-size:42px 42px;mask-image:linear-gradient(transparent,#000,transparent)}
+canvas{position:absolute;width:100%;height:100%;inset:0}
+.hud{position:absolute;z-index:2;color:#6de8ff;font:11px ui-monospace,monospace;letter-spacing:.12em}.hud.tl{top:18px;left:18px}.hud.tr{top:18px;right:18px;text-align:right}.hud.bl{bottom:18px;left:18px}.hud.br{bottom:18px;right:18px;text-align:right}
+.uploadhint{position:absolute;z-index:3;bottom:22px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#071323bb;border:1px solid #315d78;border-radius:99px;padding:8px 14px;color:#d2f7ff;font-size:12px}
+.controls{padding:22px}.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:.18em;font-weight:700}.controls h1{font-size:28px;line-height:1.12;margin:10px 0}.desc{color:var(--muted);font-size:13px;margin:0 0 22px}
+label{display:block;font-size:12px;color:#b4c5df;margin:17px 0 8px}input[type=file]{display:none}.upload{display:block;text-align:center;padding:13px;border:1px dashed #42738e;border-radius:12px;background:#10243a;color:#bdf4ff;cursor:pointer;font-weight:650}
+button{border:0;border-radius:12px;padding:12px 14px;background:linear-gradient(100deg,#16c9ed,#9874ff);color:#06101d;font-weight:800;cursor:pointer;width:100%;margin-top:12px;font-size:14px}button.secondary{background:#192a43;color:#d6e8ff;border:1px solid #35506d}button:disabled{opacity:.45;cursor:not-allowed}
+.range{width:100%;accent-color:#40dafa}.swatches{display:flex;gap:8px}.swatch{width:32px;height:32px;border-radius:50%;border:2px solid #526783;cursor:pointer}.swatch.active{outline:2px solid white;outline-offset:2px}
+.note{font-size:11px;color:#7389aa;margin-top:18px}.status{min-height:18px;color:#7be9c2;font-size:12px;margin-top:10px}
+@media(max-width:850px){main{grid-template-columns:1fr}.preview{min-height:540px}.stage{min-height:430px}header{padding:18px}main{margin:4px auto}}
+</style>
+</head>
+<body>
+<header><div class="brand">FACE<span>MESH</span> / STUDIO</div><div class="pill">✦ AI VISUAL LAB · CONCEPT 04</div></header>
+<main>
+<section class="preview">
+ <div class="topline"><span>LIVE PREVIEW / HOLOGRAPHIC IDENTITY</span><span id="state">DEMO MODE</span></div>
+ <div class="stage" id="stage">
+  <div class="hud tl">FACE MESH<br>BIOMETRIC VISUAL</div><div class="hud tr">SYSTEM / 04<br>CYAN + VIOLET</div>
+  <canvas id="mesh"></canvas>
+  <div class="hud bl">LANDMARKS: ACTIVE<br>DEPTH MAP: SIMULATED</div><div class="hud br">SCAN READY<br>● ● ●</div>
+  <div class="uploadhint">Upload a portrait to preview the overlay</div>
+ </div>
+</section>
+<aside class="controls">
+ <div class="eyebrow">HALF HUMAN / HALF AI</div>
+ <h1>Your face.<br>Reimagined.</h1>
+ <p class="desc">A cinematic holographic face-mesh look with a digital split, glowing landmarks and a futuristic scanning interface.</p>
+ <label class="upload" for="photo">＋ Choose your photo</label><input id="photo" type="file" accept="image/*">
+ <label>Mesh intensity <span id="intensityVal">72%</span></label><input class="range" id="intensity" type="range" min="20" max="100" value="72">
+ <label>Split position <span id="splitVal">50%</span></label><input class="range" id="split" type="range" min="30" max="70" value="50">
+ <label>Hologram color</label><div class="swatches"><button class="swatch active" data-color="#35d9ff" style="background:#35d9ff" aria-label="Cyan"></button><button class="swatch" data-color="#cf55ff" style="background:#cf55ff" aria-label="Violet"></button><button class="swatch" data-color="#5dffcf" style="background:#5dffcf" aria-label="Mint"></button></div>
+ <button id="download" disabled>Download image</button><button class="secondary" id="reset">Reset preview</button>
+ <div class="status" id="status" role="status"></div>
+ <p class="note">This is a visual mesh overlay demo, not biometric identification or a real 3D facial scan. Your photo is processed locally in this browser.</p>
+</aside>
+</main>
+<script>
+const canvas=document.getElementById('mesh'),ctx=canvas.getContext('2d');let photo=null,color='#35d9ff',intensity=.72,split=.5,raf;
+const $=id=>document.getElementById(id);
+function resize(){const r=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);ctx.setTransform(d,0,0,d,0,0);draw()}
+function draw(){
+ const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;ctx.clearRect(0,0,w,h);
+ if(photo){const scale=Math.max(w/photo.width,h/photo.height),iw=photo.width*scale,ih=photo.height*scale;ctx.save();ctx.beginPath();ctx.rect(0,0,w*split,h);ctx.clip();ctx.globalAlpha=.96;ctx.drawImage(photo,(w-iw)/2,(h-ih)/2,iw,ih);ctx.restore();ctx.fillStyle='rgba(5,12,28,.16)';ctx.fillRect(0,0,w,h)}
+ const cx=w*.5,cy=h*.46,rx=Math.min(w*.31,190),ry=Math.min(h*.39,230),cols=17,rows=23,pts=[];
+ for(let j=0;j<rows;j++){pts[j]=[];for(let i=0;i<cols;i++){const u=i/(cols-1)*2-1,v=j/(rows-1)*2-1;const x=cx+u*rx*Math.sqrt(Math.max(.08,1-v*v*.38)),y=cy+v*ry;pts[j][i]={x,y}}}
+ ctx.save();ctx.lineWidth=1;ctx.globalAlpha=intensity;ctx.shadowBlur=7;ctx.shadowColor=color;ctx.strokeStyle=color;
+ // Overlay only on the AI half when a real image is supplied; full wireframe in demo.
+ const start=photo?Math.floor((cols-1)*split):0;
+ for(let j=0;j<rows;j++){for(let i=start;i<cols;i++){const p=pts[j][i];if(i<cols-1){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(pts[j][i+1].x,pts[j][i+1].y);ctx.stroke()}if(j<rows-1){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(pts[j+1][i].x,pts[j+1][i].y);ctx.stroke()}if(i<cols-1&&j<rows-1){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(pts[j+1][i+1].x,pts[j+1][i+1].y);ctx.stroke()}}}
+ ctx.fillStyle='#ecfbff';for(let j=1;j<rows-1;j+=2)for(let i=Math.max(start,1);i<cols-1;i+=2){const p=pts[j][i];ctx.beginPath();ctx.arc(p.x,p.y,1.7,0,Math.PI*2);ctx.fill()}
+ // bright center seam and scan details
+ const sx=w*split;ctx.shadowBlur=18;ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx,cy-ry-20);ctx.lineTo(sx,cy+ry+20);ctx.stroke();
+ ctx.restore();
+ if(!photo){ctx.fillStyle='#d7edff';ctx.textAlign='center';ctx.font='600 13px system-ui';ctx.fillText('AI FACE PREVIEW',cx,h-66);ctx.font='11px monospace';ctx.fillStyle=color;ctx.fillText('UPLOAD A PORTRAIT TO PERSONALIZE',cx,h-46)}
+}
+function loadImage(file){if(!file)return;if(!file.type.startsWith('image/')){$('status').textContent='Please choose an image file.';return}const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{photo=img;$('download').disabled=false;$('state').textContent='PHOTO LOADED';$('status').textContent='Photo loaded. Your preview is ready.';draw();URL.revokeObjectURL(url)};img.onerror=()=>{$('status').textContent='Could not load that image.';URL.revokeObjectURL(url)};img.src=url}
+$('photo').addEventListener('change',e=>loadImage(e.target.files[0]));
+$('intensity').addEventListener('input',e=>{intensity=e.target.value/100;$('intensityVal').textContent=e.target.value+'%';draw()});
+$('split').addEventListener('input',e=>{split=e.target.value/100;$('splitVal').textContent=e.target.value+'%';draw()});
+document.querySelectorAll('.swatch').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));b.classList.add('active');color=b.dataset.color;draw()}));
+$('reset').addEventListener('click',()=>{photo=null;$('photo').value='';$('download').disabled=true;$('state').textContent='DEMO MODE';$('status').textContent='Preview reset.';draw()});
+$('download').addEventListener('click',()=>{const a=document.createElement('a');a.download='facemesh-ai.png';a.href=canvas.toDataURL('image/png');a.click()});
+new ResizeObserver(resize).observe($('stage'));resize();
+</script>
+</body>
+</html>
